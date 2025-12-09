@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Rathinam Smart Parking</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #5dade2, #2874a6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            transition: 0.4s;
+        }
+        body.dark {
+            background: linear-gradient(135deg, #111, #2b2b2b);
+            color: white;
+        }
+
+        .register-box {
+            width: 430px;
+            background: #ffffffd9;
+            border-radius: 14px;
+            padding: 34px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.35);
+            transition: 0.4s;
+        }
+        body.dark .register-box {
+            background: #2c2c2cf0;
+            color: white;
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 25px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #154360;
+        }
+        body.dark .logo { color: #78aaff; }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #1a5276;
+            font-size: 26px;
+        }
+        body.dark h2 { color: #b9d4ff; }
+
+        .form-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 12px;
+            font-size: 16px;
+            border: 1.2px solid #8da4c2;
+            background: #eef5ff;
+            border-radius: 6px;
+            outline: none;
+        }
+        body.dark .form-group input {
+            background: #1e1e1e;
+            border-color: #555;
+            color: white;
+        }
+
+        .form-group input:focus {
+            border-color: #2874a6;
+        }
+        .form-group label {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            pointer-events: none;
+            color: #6c757d;
+            transition: 0.3s;
+            background: transparent;
+        }
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group input:focus + label {
+            top: -9px;
+            left: 10px;
+            background: white;
+            font-size: 13px;
+            color: #154360;
+            padding: 0 4px;
+        }
+        body.dark .form-group input:not(:placeholder-shown) + label,
+        body.dark .form-group input:focus + label {
+            background: #2c2c2cf0;
+            color: #9fc5ff;
+        }
+
+        /* Eye icon */
+        .eye {
+            position: absolute;
+            right: 10px;
+            top: 13px;
+            cursor: pointer;
+            font-size: 19px;
+        }
+
+        #pass-match {
+            font-size: 14px;
+            margin-top: -10px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            background: #2874a6;
+            border: none;
+            border-radius: 8px;
+            font-size: 19px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            transform: scale(1.02);
+            background: #1b4f72;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 18px;
+            right: 22px;
+            font-size: 17px;
+            background: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.25);
+        }
+        body.dark .theme-toggle {
+            background: #1c1c1c;
+            color: white;
+        }
+
+        .login {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .login a {
+            color: #003b8e;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .login a:hover { text-decoration: underline; }
+
+        /* Success animated popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 30px;
+            width: 360px;
+            padding: 18px;
+            background: #20c997;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            border-radius: 8px;
+            animation: slide 0.7s ease;
+        }
+        @keyframes slide {
+            from { transform: translateY(-20px); opacity: 0; }
+            to   { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+
+<div class="popup" id="popup">✔ Registration Successful</div>
+
+<div class="register-box">
+    <div class="logo">🚗 Rathinam Smart Parking</div>
+    <h2>Create Account</h2>
+
+    <form method="POST" action="/register" onsubmit="return validatePasswords()">
+        <div class="form-group">
+            <input type="text" name="name" required placeholder=" ">
+            <label>Full Name</label>
+        </div>
+
+        <div class="form-group">
+            <input type="email" name="email" required placeholder=" ">
+            <label>Email Address</label>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+            <input type="password" id="password" name="password" required placeholder=" ">
+            <label>Create Password</label>
+            <span class="eye" onclick="togglePassword('password', this)">👁</span>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="form-group">
+            <input type="password" id="confirm" required placeholder=" ">
+            <label>Confirm Password</label>
+            <span class="eye" onclick="togglePassword('confirm', this)">👁</span>
+        </div>
+
+        <p id="pass-match"></p>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <div class="login">
+        Already have an account? <a href="/login">Login here</a>
+    </div>
+</div>
+
+<script>
+function toggleTheme() {
+    document.body.classList.toggle("dark");
+    document.querySelector(".theme-toggle").innerHTML =
+        document.body.classList.contains("dark") ? "☀️" : "🌙";
+}
+
+function togglePassword(id, eye) {
+    let input = document.getElementById(id);
+    input.type = input.type === "password" ? "text" : "password";
+    eye.innerHTML = input.type === "password" ? "👁" : "🙈";
+}
+
+let password = document.getElementById("password");
+let confirmPass = document.getElementById("confirm");
+let msg = document.getElementById("pass-match");
+
+confirmPass.addEventListener("keyup", function() {
+    if (password.value === confirmPass.value) {
+        msg.style.color = "#1f7a1f";
+        msg.textContent = "✔ Password Matched";
+    } else {
+        msg.style.color = "#b30000";
+        msg.textContent = "✖ Password Not Matching";
+    }
+});
+
+function validatePasswords() {
+    if (password.value !== confirmPass.value) {
+        alert("Passwords do not match!");
+        return false;
+    }
+
+    // Show animated success popup
+    const popup = document.getElementById("popup");
+    popup.innerHTML = "✔ Registration Successful — Redirecting to Login...";
+    popup.style.display = "block";
+
+    // Auto redirect after 3 seconds
+    setTimeout(() => {
+        window.location.href = "/login";
+    }, 3000);
+
+    return true; // allow form to submit
+}
+</script>
+
+
+</body>
+</html>
