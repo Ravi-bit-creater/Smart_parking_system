@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Parking Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+</head>
+
+<body style="background: #f2f6ff;">
+<nav class="navbar navbar-dark bg-primary px-4 d-flex justify-content-between">
+    <span class="navbar-brand">Smart Parking Dashboard</span>
+
+    <div class="d-flex gap-2">
+
+        {% if session['role'] == 'admin' %}
+            <a href="/history" class="btn btn-light btn-sm">Booking History</a>
+        {% endif %}
+
+        <a href="/logout" class="btn btn-danger btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <form method="get" action="/dashboard" class="row g-3 align-items-end shadow p-3 bg-white rounded mb-4">
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Search by Vehicle Number</label>
+            <input type="text" name="vehicle_search" class="form-control"
+                   placeholder="Enter vehicle number" value="{{ request.args.get('vehicle_search', '') }}">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Select Zone</label>
+            <select name="zone_filter" class="form-select">
+                <option value="">All Zones</option>
+                {% for z in zones %}
+                    <option value="{{ z.area_name }}"
+                        {% if request.args.get('zone_filter') == z.area_name %} selected {% endif %}>
+                        {{ z.area_name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-success w-100">Apply Filters</button>
+        </div>
+        <div class="col-md-2">
+            <a href="/dashboard" class="btn btn-secondary w-100">Clear Filters</a>
+        </div>
+    </form>
+
+    <h4 class="text-center mb-3">Parking Slot Status</h4>
+
+    <table class="table table-bordered table-striped table-hover text-center bg-white shadow">
+        <thead class="table-primary">
+            <tr>
+                <th>Slot No</th>
+                <th>Zone</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Vehicle No</th>
+                <th>Vehicle Type</th>
+                <th>Booking Time</th>
+                <th>Parking Fee</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for slot in slots %}
+            <tr>
+                <td>{{ slot.slot_number }}</td>
+                <td>{{ slot.area_name }}</td>
+                <td>{{ slot.slot_type }}</td>
+                <td>
+                    {% if slot.status == 'available' %}
+                        <span class="badge bg-success">Available</span>
+                    {% else %}
+                        <span class="badge bg-danger">Occupied</span>
+                    {% endif %}
+                </td>
+                <td>{{ slot.vehicle_number or '-' }}</td>
+                <td>{{ slot.vehicle_type or '-' }}</td>
+                <td>{{ slot.booking_time or '-' }}</td>
+                <td>{{ slot.parking_fee or '-' }}</td>
+
+                <td>
+                    {% if slot.status == 'available' %}
+                        <form method="post" action="/book_slot" class="d-flex gap-1">
+                            <input type="hidden" name="slot_id" value="{{ slot.slot_id }}">
+                            <input type="text" name="vehicle_number" class="form-control form-control-sm"
+                                   placeholder="Vehicle No" required>
+                            <select name="vehicle_type" class="form-select form-select-sm" required>
+                                <option value="Two Wheeler">Two Wheeler</option>
+                                <option value="Four Wheeler">Four Wheeler</option>
+                            </select>
+                            <button class="btn btn-primary btn-sm">Book</button>
+                        </form>
+                    {% else %}
+                        {% if session['role'] == 'admin' %}
+                        <form method="post" action="/checkout_slot">
+                            <input type="hidden" name="slot_id" value="{{ slot.slot_id }}">
+                            <button class="btn btn-warning btn-sm">Checkout</button>
+                        </form>
+                        {% else %}
+                            <span class="text-secondary">Not Allowed</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
