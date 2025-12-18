@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Dashboard - Rathinam Smart Parking</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #4a6ee0;
+            --secondary: #6a11cb;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: #333;
+            padding-bottom: 50px;
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+        
+        .card-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            font-size: 1.3em;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        .badge-checkedin {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .badge-checkedout {
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            color: white;
+        }
+        
+        .badge-cancelled {
+            background: linear-gradient(135deg, var(--danger), #c82333);
+            color: white;
+        }
+        
+        .btn-book {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-book:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 110, 224, 0.3);
+            color: white;
+        }
+        
+        .btn-cancel {
+            background: linear-gradient(135deg, var(--danger), #c82333);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .slot-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .slot-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(74, 110, 224, 0.1);
+        }
+        
+        .slot-available {
+            border-left: 5px solid var(--success);
+        }
+        
+        .slot-occupied {
+            border-left: 5px solid var(--danger);
+        }
+        
+        .booking-details {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .table-custom th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .alert-custom {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .footer {
+            background: linear-gradient(90deg, var(--dark), #495057);
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .theme-toggle {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Pricing Info Card */
+        .pricing-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .pricing-card h5 {
+            color: white;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .pricing-table {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .pricing-table th {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .pricing-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pricing-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .vehicle-icon {
+            margin-right: 8px;
+            font-size: 1.1em;
+        }
+        
+        /* Vehicle type specific styling */
+        .vehicle-car { color: #4a6ee0; }
+        .vehicle-suv { color: #28a745; }
+        .vehicle-truck { color: #dc3545; }
+        .vehicle-bike { color: #ffc107; }
+        .vehicle-scooter { color: #17a2b8; }
+        .vehicle-default { color: #6c757d; }
+        
+        /* Price display */
+        .price-display {
+            font-weight: 700;
+            color: #28a745;
+        }
+        
+        /* Vehicle type info in booking */
+        .vehicle-type-badge {
+            background: rgba(74, 110, 224, 0.1);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Search Box Styles */
+        .search-container {
+            margin-bottom: 25px;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            z-index: 2;
+        }
+        
+        .search-box input {
+            padding-left: 45px;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            width: 100%;
+            height: 46px;
+        }
+        
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(74, 110, 224, 0.25);
+            outline: none;
+        }
+        
+        /* Dark theme specific styles */
+        body.dark-theme {
+            background-color: #121826;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .dashboard-card {
+            background-color: #1a2236;
+            border-color: #2a3447;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .slot-card {
+            background-color: #1a2236;
+            border-color: #2a3447;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .table-custom th {
+            background-color: #2a3447;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .table-custom td {
+            background-color: #1a2236;
+            color: #e0e0e0;
+            border-color: #2a3447;
+        }
+        
+        body.dark-theme .booking-details {
+            background: linear-gradient(135deg, #2a3447, #1a2236);
+        }
+        
+        body.dark-theme .form-control,
+        body.dark-theme .form-select {
+            background-color: #2a3447;
+            border-color: #3a4457;
+            color: #e0e0e0;
+        }
+        
+        body.dark-theme .form-control::placeholder {
+            color: #8a93a2;
+        }
+        
+        body.dark-theme .text-muted {
+            color: #8a93a2 !important;
+        }
+        
+        body.dark-theme .alert-custom {
+            background-color: #1a2236;
+            color: #e0e0e0;
+            border: 1px solid #2a3447;
+        }
+        
+        body.dark-theme .footer {
+            background: linear-gradient(90deg, #0a0f1a, #1a2236);
+        }
+        
+        body.dark-theme .pricing-card {
+            background: linear-gradient(135deg, #0f3460, #16213e);
+        }
+        
+        body.dark-theme .pricing-table {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        body.dark-theme .pricing-table th {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-theme .pricing-table td {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        body.dark-theme .price-display {
+            color: #20c997;
+        }
+        
+        body.dark-theme .vehicle-type-badge {
+            background: rgba(100, 149, 237, 0.2);
+            color: #66b3ff;
+        }
+        
+        /* No type badge */
+        .no-type-badge {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-style: italic;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        body.dark-theme .no-type-badge {
+            background: rgba(138, 147, 162, 0.2);
+            color: #8a93a2;
+        }
+        
+        /* Vehicle type cell */
+        .vehicle-type-cell {
+            min-width: 100px;
+        }
+        
+        /* Ensure table columns are properly aligned */
+        th, td {
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom px-4 py-3">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-car me-2"></i>Rathinam Smart Parking
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white">
+                    <i class="fas fa-user me-2"></i>Welcome, {{ session.user_name }}
+                </span>
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="/logout" class="btn btn-light btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-custom alert-dismissible fade show">
+                        <i class="fas fa-info-circle me-2"></i>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Current Active Booking -->
+        <div class="dashboard-card">
+            <h3 class="card-title">
+                <i class="fas fa-clock"></i>Current Active Booking
+            </h3>
+            
+            {% if current_booking %}
+            <div class="booking-details">
+                <div class="row">
+                    <div class="col-md-3">
+                        <p><strong>Booking ID:</strong> #{{ current_booking.booking_id }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Slot:</strong> {{ current_booking.slot_number }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Area:</strong> {{ current_booking.area_name }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <p><strong>Vehicle:</strong> 
+                            {% if current_booking.vehicle_type and current_booking.vehicle_type != 'na' and current_booking.vehicle_type != 'N/A' %}
+                            <span class="vehicle-type-badge">
+                                <i class="fas {{ get_vehicle_icon(current_booking.vehicle_type) }} me-1 vehicle-{{ current_booking.vehicle_type|lower if current_booking.vehicle_type else 'default' }}"></i>
+                                {{ current_booking.vehicle_type }}
+                            </span>
+                            {% else %}
+                            <span class="no-type-badge">
+                                <i class="fas fa-question-circle me-1 vehicle-default"></i>
+                                Not specified
+                            </span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-6">
+                        <p><strong>Vehicle Number:</strong> 
+                            {% if current_booking.vehicle_number %}
+                                {% if current_booking.vehicle_number.lower() not in ['na', 'n/a', 'null', 'none', ''] %}
+                                    <span>{{ current_booking.vehicle_number }}</span>
+                                {% else %}
+                                    <span class="text-muted">Not recorded</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">Not recorded</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Check-in:</strong> {{ current_booking.in_time }}</p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Parking Fee:</strong> 
+                            {% if current_booking.vehicle_type and current_booking.vehicle_type != 'na' and current_booking.vehicle_type != 'N/A' %}
+                            Your fee will be calculated based on vehicle type (<strong>{{ current_booking.vehicle_type }}</strong>) when you check out. 
+                            Current rate: <strong>₹{% if current_booking.vehicle_type == 'Car' %}3{% elif current_booking.vehicle_type == 'SUV' %}4{% elif current_booking.vehicle_type == 'Truck' %}5{% elif current_booking.vehicle_type in ['Bike', 'Scooter'] %}1{% else %}2{% endif %}</strong> per minute.
+                            {% else %}
+                            Vehicle type not specified. Please update your vehicle information for accurate billing.
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-1">
+                    <div class="col-md-12">
+                        <form method="POST" action="/cancel_booking" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                            <input type="hidden" name="booking_id" value="{{ current_booking.booking_id }}">
+                            <button type="submit" class="btn btn-cancel">
+                                <i class="fas fa-times-circle me-2"></i>Cancel Booking
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h4>No Active Booking</h4>
+                <p>You don't have any active parking bookings at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Book a New Slot -->
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="card-title m-0">
+                    <i class="fas fa-map-marker-alt"></i>Available Parking Slots
+                </h3>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="slotSearch" placeholder="Search slots by number or area..." 
+                           class="form-control">
+                </div>
+            </div>
+            
+            {% if available_slots %}
+            <div class="row" id="slotContainer">
+                {% for slot in available_slots %}
+                <div class="col-md-6 col-lg-4 mb-3 slot-item" 
+                     data-slot-number="{{ slot.slot_number|lower }}"
+                     data-area-name="{{ slot.area_name|lower }}"
+                     data-slot-type="{{ slot.slot_type|lower }}">
+                    <div class="slot-card slot-available">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="mb-1 slot-number">Slot #{{ slot.slot_number }}</h5>
+                                <p class="text-muted mb-1 slot-type">{{ slot.slot_type }}</p>
+                                <span class="badge bg-success">Available</span>
+                            </div>
+                            <i class="fas fa-parking text-success" style="font-size: 2em;"></i>
+                        </div>
+                        <p class="mb-2 area-name"><i class="fas fa-map-marked-alt me-2"></i>Area: {{ slot.area_name }}</p>
+                        
+                        <!-- Vehicle-based Booking Form -->
+                        <form method="POST" action="/book_slot" class="booking-form">
+                            <input type="hidden" name="slot_id" value="{{ slot.slot_id }}">
+                            <div class="mb-3">
+                                <label class="form-label">Vehicle Number *</label>
+                                <input type="text" class="form-control vehicle-number" name="vehicle_number" required 
+                                       placeholder="e.g., TN-01-AB-1234" maxlength="15">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Vehicle Type *</label>
+                                <select class="form-select vehicle-type" name="vehicle_type" required onchange="updatePriceInfo(this)">
+                                    <option value="">Select vehicle type</option>
+                                    <option value="Car" data-rate="3" data-min="30">Car (₹3/min, min ₹30)</option>
+                                    <option value="SUV" data-rate="4" data-min="40">SUV (₹4/min, min ₹40)</option>
+                                    <option value="Truck" data-rate="5" data-min="50">Truck (₹5/min, min ₹50)</option>
+                                    <option value="Bike" data-rate="1" data-min="10">Bike (₹1/min, min ₹10)</option>
+                                    <option value="Scooter" data-rate="1" data-min="10">Scooter (₹1/min, min ₹10)</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 price-info" style="display: none;">
+                                <div class="alert alert-info p-2 mb-0">
+                                    <small>
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <strong>Rate:</strong> ₹<span class="rate">0</span>/min | 
+                                        <strong>Minimum:</strong> ₹<span class="min-fee">0</span> | 
+                                        <strong>Example (1 hour):</strong> ₹<span class="hour-example">0</span>
+                                    </small>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-book w-100">
+                                <i class="fas fa-bookmark me-2"></i>Book This Slot
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- No results message -->
+            <div class="no-results" id="slotNoResults" style="display: none;">
+                <i class="fas fa-search"></i>
+                <h4>No matching slots found</h4>
+                <p>Try adjusting your search terms</p>
+            </div>
+            
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-parking"></i>
+                <h4>No Available Slots</h4>
+                <p>All parking slots are currently occupied. Please check back later.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Booking History -->
+        <div class="dashboard-card">
+            <h3 class="card-title">
+                <i class="fas fa-history"></i>Your Booking History
+            </h3>
+            
+            {% if user_history %}
+            <div class="table-responsive">
+                <table class="table table-hover table-custom">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Slot</th>
+                            <th>Area</th>
+                            <th>Vehicle Type</th>
+                            <th>Check-in</th>
+                            <th>Check-out</th>
+                            <th>Status</th>
+                            <th>Fee (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in user_history %}
+                        <tr>
+                            <td>#{{ booking.booking_id }}</td>
+                            <td>{{ booking.slot_number }}</td>
+                            <td>{{ booking.area_name }}</td>
+                            <td class="vehicle-type-cell">
+                                {% if booking.vehicle_type and booking.vehicle_type != 'na' and booking.vehicle_type != 'N/A' %}
+                                <span class="vehicle-type-badge">
+                                    <i class="fas {{ get_vehicle_icon(booking.vehicle_type) }} me-1 vehicle-{{ booking.vehicle_type|lower if booking.vehicle_type else 'default' }}"></i>
+                                    {{ booking.vehicle_type }}
+                                </span>
+                                {% else %}
+                                <span class="no-type-badge">
+                                    <i class="fas fa-question-circle me-1 vehicle-default"></i>
+                                    Not specified
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>{{ booking.in_time }}</td>
+                            <td>{{ booking.out_time if booking.out_time else '-' }}</td>
+                            <td>
+                                {% if booking.status == 'checkedin' %}
+                                    <span class="status-badge badge-checkedin">
+                                        <i class="fas fa-car-alt me-1"></i>Checked In
+                                    </span>
+                                {% elif booking.status == 'checkedout' %}
+                                    <span class="status-badge badge-checkedout">
+                                        <i class="fas fa-check-circle me-1"></i>Checked Out
+                                    </span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="status-badge badge-cancelled">
+                                        <i class="fas fa-times-circle me-1"></i>Cancelled
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ booking.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="{% if booking.parking_fee and booking.parking_fee > 0 %}price-display{% endif %}">
+                                {% if booking.parking_fee and booking.parking_fee > 0 %}
+                                    ₹{{ booking.parking_fee }}
+                                    {% if booking.vehicle_type and booking.vehicle_type != 'na' and booking.vehicle_type != 'N/A' %}
+                                        <br><small class="text-muted">({{ booking.vehicle_type }})</small>
+                                    {% endif %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-clipboard-list"></i>
+                <h4>No Booking History</h4>
+                <p>You haven't made any bookings yet.</p>
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-car me-2"></i>Rathinam Smart Parking</h5>
+                    <p class="mb-0">Smart parking solutions with vehicle-based pricing</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">
+                        <i class="fas fa-user me-2"></i>User ID: {{ session.user_id }}
+                    </p>
+                    <p class="mb-0">
+                        <i class="fas fa-calculator me-2"></i>Dynamic Pricing System
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Dark/Light Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        // Check for saved theme or prefer-color-scheme
+        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        const currentTheme = localStorage.getItem('theme');
+        
+        if (currentTheme === 'dark' || (!currentTheme && prefersDarkScheme.matches)) {
+            document.body.classList.add('dark-theme');
+            themeIcon.className = 'fas fa-sun';
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            const isDark = document.body.classList.toggle('dark-theme');
+            themeIcon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        });
+        
+        // Vehicle Type Price Information Update
+        function updatePriceInfo(selectElement) {
+            const form = selectElement.closest('.booking-form');
+            const priceInfo = form.querySelector('.price-info');
+            const rateSpan = form.querySelector('.rate');
+            const minFeeSpan = form.querySelector('.min-fee');
+            const hourExampleSpan = form.querySelector('.hour-example');
+            
+            if (selectElement.value) {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const rate = selectedOption.getAttribute('data-rate') || '0';
+                const minFee = selectedOption.getAttribute('data-min') || '0';
+                
+                rateSpan.textContent = rate;
+                minFeeSpan.textContent = minFee;
+                hourExampleSpan.textContent = rate * 60;
+                
+                priceInfo.style.display = 'block';
+            } else {
+                priceInfo.style.display = 'none';
+            }
+        }
+        
+        // Initialize price info for all booking forms
+        document.querySelectorAll('.vehicle-type').forEach(select => {
+            select.addEventListener('change', function() {
+                updatePriceInfo(this);
+            });
+            
+            // Trigger change on load if already selected
+            if (select.value) {
+                updatePriceInfo(select);
+            }
+        });
+        
+        // Slot Search Functionality
+        const slotSearch = document.getElementById('slotSearch');
+        const slotContainer = document.getElementById('slotContainer');
+        const slotNoResults = document.getElementById('slotNoResults');
+        
+        if (slotSearch && slotContainer) {
+            const slotItems = Array.from(slotContainer.querySelectorAll('.slot-item'));
+            
+            slotSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                let visibleCount = 0;
+                
+                slotItems.forEach(item => {
+                    const slotNumber = item.getAttribute('data-slot-number') || '';
+                    const areaName = item.getAttribute('data-area-name') || '';
+                    
+                    if (!searchTerm || slotNumber.includes(searchTerm) || areaName.includes(searchTerm)) {
+                        item.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide no results message
+                if (visibleCount === 0 && searchTerm) {
+                    slotNoResults.style.display = 'block';
+                    slotContainer.style.display = 'none';
+                } else {
+                    slotNoResults.style.display = 'none';
+                    slotContainer.style.display = 'flex';
+                }
+            });
+        }
+        
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+        
+        // Form validation for vehicle number
+        document.querySelectorAll('.booking-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const vehicleNumber = this.querySelector('.vehicle-number').value.trim();
+                const vehicleType = this.querySelector('.vehicle-type').value;
+                
+                if (!vehicleNumber) {
+                    e.preventDefault();
+                    alert('Please enter vehicle number');
+                    return false;
+                }
+                
+                if (!vehicleType) {
+                    e.preventDefault();
+                    alert('Please select vehicle type');
+                    return false;
+                }
+                
+                // Validate vehicle number format (basic validation)
+                const vehicleRegex = /^[A-Z]{2}[-\s]?[0-9]{1,2}[-\s]?[A-Z]{1,2}[-\s]?[0-9]{1,4}$/i;
+                if (!vehicleRegex.test(vehicleNumber) && vehicleNumber.length < 3) {
+                    if (!confirm('Vehicle number format might be incorrect. Continue anyway?')) {
+                        e.preventDefault();
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+        });
+    </script>
+</body>
+</html>

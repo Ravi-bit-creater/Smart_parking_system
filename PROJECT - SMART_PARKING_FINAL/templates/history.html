@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking History | Rathinam Smart Parking</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root{
+            --bg: #f3f6ff;
+            --card: #ffffff;
+            --text: #1b2430;
+        }
+        body.dark{
+            --bg: #0d1623;
+            --card: #0b1220;
+            --text: #e0e0e0;
+        }
+
+        body{
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Poppins", sans-serif;
+            padding-bottom: 30px;
+            transition: background 0.3s ease;
+        }
+        .table-container{
+            background: var(--card);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        body.dark .table-container {
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .table tbody tr:hover{
+            background: rgba(0, 102, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+        body.dark .table tbody tr:hover {
+            background: rgba(100, 149, 237, 0.1);
+        }
+        .navbar-custom{
+            background: linear-gradient(90deg, #004aad, #0077ff);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #themeToggle{
+            border: none;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 20px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        #themeToggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+        .search-box {
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        .search-box input {
+            padding-left: 40px;
+        }
+        .badge {
+            font-size: 0.85em;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        .badge-checkedin {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        .badge-checkedout {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+        }
+        .badge-cancelled {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+        .badge-pending {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #212529;
+        }
+        .status-icon {
+            margin-right: 5px;
+        }
+        .sortable {
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+        .sortable:hover {
+            color: #007bff;
+        }
+        body.dark .sortable:hover {
+            color: #66b3ff;
+        }
+        .filters {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        body.dark .filters {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #4a6ee0, #6a11cb);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        body.dark .stats-card {
+            background: linear-gradient(135deg, #0f3460, #16213e);
+        }
+        .stats-card h5 {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .stats-card p {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #6c757d;
+        }
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        /* Vehicle type styling */
+        .vehicle-type-badge {
+            background: rgba(74, 110, 224, 0.1);
+            color: #4a6ee0;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        body.dark .vehicle-type-badge {
+            background: rgba(100, 149, 237, 0.2);
+            color: #66b3ff;
+        }
+        
+        .vehicle-icon {
+            font-size: 0.9em;
+        }
+        
+        .vehicle-car { color: #4a6ee0; }
+        .vehicle-suv { color: #28a745; }
+        .vehicle-truck { color: #dc3545; }
+        .vehicle-bike { color: #ffc107; }
+        .vehicle-scooter { color: #17a2b8; }
+        .vehicle-default { color: #6c757d; }
+        
+        body.dark .vehicle-default { color: #8a93a2; }
+        
+        /* Price display with vehicle info */
+        .price-cell {
+            font-weight: 600;
+        }
+        
+        .vehicle-rate-info {
+            font-size: 0.8em;
+            color: #6c757d;
+            display: block;
+        }
+        
+        body.dark .vehicle-rate-info {
+            color: #8a93a2;
+        }
+        
+        /* Fee calculation info */
+        .fee-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        body.dark .fee-info {
+            background: linear-gradient(135deg, #2a3447, #1a2236);
+        }
+        
+        .fee-info h6 {
+            margin-bottom: 10px;
+            color: #4a6ee0;
+        }
+        
+        body.dark .fee-info h6 {
+            color: #66b3ff;
+        }
+        
+        .pricing-table {
+            width: 100%;
+            font-size: 0.9em;
+        }
+        
+        .pricing-table th {
+            background: rgba(74, 110, 224, 0.1);
+            padding: 8px 12px;
+            font-weight: 600;
+        }
+        
+        body.dark .pricing-table th {
+            background: rgba(100, 149, 237, 0.2);
+        }
+        
+        .pricing-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        body.dark .pricing-table td {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .no-type-badge {
+            background: rgba(108, 117, 125, 0.1);
+            color: #6c757d;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-style: italic;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        body.dark .no-type-badge {
+            background: rgba(138, 147, 162, 0.2);
+            color: #8a93a2;
+        }
+        
+        /* Ensure table columns are properly aligned */
+        th, td {
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark navbar-custom px-4 py-3 d-flex justify-content-between">
+    <h4 class="text-white m-0"><i class="fas fa-history me-2"></i>Booking History</h4>
+    <div class="d-flex gap-2">
+        <a href="/dashboard" class="btn btn-light btn-sm">🏠 Dashboard</a>
+        <button id="themeToggle">🌙</button>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    
+    <!-- Pricing Information -->
+    <div class="fee-info">
+        <h6><i class="fas fa-money-bill-wave me-2"></i>Vehicle-Based Parking Fees</h6>
+        <div class="table-responsive">
+            <table class="pricing-table">
+                <thead>
+                    <tr>
+                        <th>Vehicle Type</th>
+                        <th>Rate per Minute</th>
+                        <th>Minimum Fee</th>
+                        <th>Example (1 hour)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><i class="fas fa-car vehicle-icon vehicle-car"></i> Car</td>
+                        <td>₹3</td>
+                        <td>₹30</td>
+                        <td>₹180</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-shuttle-van vehicle-icon vehicle-suv"></i> SUV</td>
+                        <td>₹4</td>
+                        <td>₹40</td>
+                        <td>₹240</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-truck vehicle-icon vehicle-truck"></i> Truck</td>
+                        <td>₹5</td>
+                        <td>₹50</td>
+                        <td>₹300</td>
+                    </tr>
+                    <tr>
+                        <td><i class="fas fa-motorcycle vehicle-icon vehicle-bike"></i> Bike/Scooter</td>
+                        <td>₹1</td>
+                        <td>₹10</td>
+                        <td>₹60</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h5><i class="fas fa-clock me-2"></i>Active Bookings</h5>
+                <p id="activeCount">{{ active_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h5><i class="fas fa-check-circle me-2"></i>Completed</h5>
+                <p id="completedCount">{{ completed_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h5><i class="fas fa-times-circle me-2"></i>Cancelled</h5>
+                <p id="cancelledCount">{{ cancelled_count }}</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stats-card">
+                <h5><i class="fas fa-car me-2"></i>Total</h5>
+                <p id="totalCount">{{ total_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+        <div class="row align-items-center">
+            <div class="col-md-4">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input id="searchBox" class="form-control" placeholder="Search by slot, user, vehicle type...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="checkedin">Checked In</option>
+                    <option value="checkedout">Checked Out</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select id="vehicleTypeFilter" class="form-select">
+                    <option value="">All Vehicle Types</option>
+                    <option value="Car">Car</option>
+                    <option value="SUV">SUV</option>
+                    <option value="Truck">Truck</option>
+                    <option value="Bike">Bike</option>
+                    <option value="Scooter">Scooter</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="rowsPerPage" class="form-select">
+                    <option value="10">10 rows</option>
+                    <option value="25" selected>25 rows</option>
+                    <option value="50">50 rows</option>
+                    <option value="100">100 rows</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="historyTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="sortable" data-key="booking_id">Booking ID</th>
+                        <th class="sortable" data-key="slot_number">Slot</th>
+                        <th class="sortable" data-key="area_id">Area</th>
+                        <th>User</th>
+                        <th class="sortable" data-key="booking_date">Date</th>
+                        <th>Vehicle Type</th>
+                        <th class="sortable" data-key="in_time">Check In</th>
+                        <th class="sortable" data-key="out_time">Check Out</th>
+                        <th class="sortable" data-key="parking_fee">Fee (₹)</th>
+                        <th class="sortable" data-key="status">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    {% if history and history|length > 0 %}
+                    {% for row in history %}
+                    <tr>
+                        <td><strong>#{{ row.booking_id }}</strong></td>
+                        <td>{{ row.slot_number }}</td>
+                        <td>{{ row.area_id }}</td>
+                        <td>{{ row.user_name }}</td>
+                        <td>{{ row.booking_date }}</td>
+                        <td class="vehicle-type-cell">
+                            <!-- Vehicle Type Display -->
+                            {% if row.vehicle_type %}
+                                {% set vehicle_type = row.vehicle_type|string %}
+                                {% if vehicle_type.lower() not in ['na', 'n/a', 'null', 'none', ''] and vehicle_type|length > 0 %}
+                                    <span class="vehicle-type-badge">
+                                        <i class="fas {{ get_vehicle_icon(vehicle_type) }} vehicle-icon vehicle-{{ vehicle_type|lower if vehicle_type else 'default' }}"></i>
+                                        {{ vehicle_type }}
+                                    </span>
+                                {% else %}
+                                    <span class="no-type-badge">
+                                        <i class="fas fa-question-circle vehicle-icon vehicle-default"></i>
+                                        Not specified
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="no-type-badge">
+                                    <i class="fas fa-question-circle vehicle-icon vehicle-default"></i>
+                                    Not specified
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ row.in_time if row.in_time else 'Not checked in' }}</td>
+                        <td>{{ row.out_time if row.out_time else '-' }}</td>
+                        <td class="price-cell">
+                            {% if row.parking_fee and row.parking_fee > 0 %}
+                                ₹{{ row.parking_fee }}
+                                {% if row.vehicle_type and row.vehicle_type|string|lower not in ['na', 'n/a', 'null', 'none', ''] %}
+                                <small class="vehicle-rate-info">
+                                    ({{ row.vehicle_type }} rate)
+                                </small>
+                                {% endif %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if row.status == "checkedin" %}
+                                <span class="badge badge-checkedin">
+                                    <i class="fas fa-car-alt status-icon"></i>Checked In
+                                </span>
+                            {% elif row.status == "checkedout" %}
+                                <span class="badge badge-checkedout">
+                                    <i class="fas fa-check-circle status-icon"></i>Checked Out
+                                </span>
+                            {% elif row.status == "cancelled" %}
+                                <span class="badge badge-cancelled">
+                                    <i class="fas fa-times-circle status-icon"></i>Cancelled
+                                </span>
+                            {% elif row.status == "pending" %}
+                                <span class="badge badge-pending">
+                                    <i class="fas fa-clock status-icon"></i>Pending
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-question-circle status-icon"></i>Unknown
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <!-- Empty state will be shown by JavaScript -->
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Empty State Message -->
+        <div id="emptyState" class="empty-state" style="display: {% if history and history|length > 0 %}none{% else %}block{% endif %};">
+            <i class="fas fa-clipboard-list"></i>
+            <h4>No booking records found</h4>
+            <p>Try adjusting your search or filters</p>
+        </div>
+        
+        <!-- Pagination -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mt-4" id="pagination"></ul>
+        </nav>
+    </div>
+
+</div>
+
+<script>
+// Initialize data from Flask template
+const tableRows = Array.from(document.querySelectorAll("#historyBody tr"));
+let filtered = [...tableRows];
+let currentPage = 1;
+let rowsPerPage = 25;
+let sortKey = null;
+let sortDir = 1;
+
+// Check if table is empty
+if (tableRows.length === 0) {
+    document.getElementById("emptyState").style.display = "block";
+    document.getElementById("historyTable").style.display = "none";
+}
+
+function renderTable() {
+    rowsPerPage = Number(document.getElementById("rowsPerPage").value);
+    const totalPages = Math.ceil(filtered.length / rowsPerPage);
+    
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    const visible = filtered.slice(start, end);
+
+    const body = document.getElementById("historyBody");
+    body.innerHTML = "";
+    
+    if (visible.length === 0) {
+        document.getElementById("emptyState").style.display = "block";
+        document.getElementById("historyTable").style.display = "none";
+    } else {
+        document.getElementById("emptyState").style.display = "none";
+        document.getElementById("historyTable").style.display = "table";
+        visible.forEach(r => body.appendChild(r.cloneNode(true)));
+    }
+
+    renderPagination(totalPages);
+    updateStats();
+}
+
+function renderPagination(total) {
+    const pag = document.getElementById("pagination");
+    pag.innerHTML = "";
+
+    if (total <= 1) return;
+
+    // Previous button
+    const prevLi = document.createElement("li");
+    prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
+    prevLi.innerHTML = `<a href="#" class="page-link"><i class="fas fa-chevron-left"></i></a>`;
+    prevLi.addEventListener("click", e => {
+        e.preventDefault();
+        if (currentPage > 1) {
+            currentPage--;
+            renderTable();
+        }
+    });
+    pag.appendChild(prevLi);
+
+    // Page numbers
+    let startPage = Math.max(1, currentPage - 2);
+    let endPage = Math.min(total, startPage + 4);
+    
+    if (endPage - startPage < 4) {
+        startPage = Math.max(1, endPage - 4);
+    }
+
+    for (let p = startPage; p <= endPage; p++) {
+        const li = document.createElement("li");
+        li.className = `page-item ${p === currentPage ? 'active' : ''}`;
+        li.innerHTML = `<a href="#" class="page-link">${p}</a>`;
+        li.addEventListener("click", e => {
+            e.preventDefault();
+            currentPage = p;
+            renderTable();
+        });
+        pag.appendChild(li);
+    }
+
+    // Next button
+    const nextLi = document.createElement("li");
+    nextLi.className = `page-item ${currentPage === total ? 'disabled' : ''}`;
+    nextLi.innerHTML = `<a href="#" class="page-link"><i class="fas fa-chevron-right"></i></a>`;
+    nextLi.addEventListener("click", e => {
+        e.preventDefault();
+        if (currentPage < total) {
+            currentPage++;
+            renderTable();
+        }
+    });
+    pag.appendChild(nextLi);
+}
+
+function updateStats() {
+    // Count different statuses from filtered rows
+    let checkedin = 0, checkedout = 0, cancelled = 0;
+    
+    filtered.forEach(row => {
+        const statusCell = row.querySelector('td:nth-child(10)'); // Now 10th column after removing vehicle number
+        if (statusCell) {
+            const badge = statusCell.querySelector('.badge');
+            if (badge.classList.contains('badge-checkedin')) checkedin++;
+            else if (badge.classList.contains('badge-checkedout')) checkedout++;
+            else if (badge.classList.contains('badge-cancelled')) cancelled++;
+        }
+    });
+
+    // Update the stats display
+    document.getElementById('activeCount').textContent = checkedin;
+    document.getElementById('completedCount').textContent = checkedout;
+    document.getElementById('cancelledCount').textContent = cancelled;
+    document.getElementById('totalCount').textContent = filtered.length;
+}
+
+// Search functionality
+document.getElementById("searchBox").addEventListener("input", e => {
+    const q = e.target.value.toLowerCase().trim();
+    
+    if (!q) {
+        filtered = [...tableRows];
+    } else {
+        filtered = tableRows.filter(row => {
+            // Search in all text content
+            const rowText = row.textContent.toLowerCase();
+            
+            // Also search specifically in vehicle type
+            const vehicleTypeCell = row.querySelector('.vehicle-type-cell');
+            
+            if (vehicleTypeCell) {
+                const vehicleType = vehicleTypeCell.querySelector('.vehicle-type-badge, .no-type-badge');
+                if (vehicleType && vehicleType.textContent.toLowerCase().includes(q)) return true;
+            }
+            
+            return rowText.includes(q);
+        });
+    }
+    
+    currentPage = 1;
+    renderTable();
+});
+
+// Status filter
+document.getElementById("statusFilter").addEventListener("change", e => {
+    const status = e.target.value;
+    if (!status) {
+        filtered = [...tableRows];
+    } else {
+        filtered = tableRows.filter(row => {
+            const statusCell = row.querySelector('td:nth-child(10)');
+            if (statusCell) {
+                const badge = statusCell.querySelector('.badge');
+                if (status === 'checkedin' && badge.classList.contains('badge-checkedin')) return true;
+                if (status === 'checkedout' && badge.classList.contains('badge-checkedout')) return true;
+                if (status === 'cancelled' && badge.classList.contains('badge-cancelled')) return true;
+            }
+            return false;
+        });
+    }
+    currentPage = 1;
+    renderTable();
+});
+
+// Vehicle type filter
+document.getElementById("vehicleTypeFilter").addEventListener("change", e => {
+    const vehicleType = e.target.value.toLowerCase();
+    
+    if (!vehicleType) {
+        filtered = [...tableRows];
+    } else {
+        filtered = tableRows.filter(row => {
+            const vehicleTypeCell = row.querySelector('.vehicle-type-cell');
+            if (!vehicleTypeCell) return false;
+            
+            if (vehicleType === 'other') {
+                // Check for "Not specified"
+                const noTypeBadge = vehicleTypeCell.querySelector('.no-type-badge');
+                return noTypeBadge !== null;
+            } else {
+                // Check for specific vehicle type
+                const typeBadge = vehicleTypeCell.querySelector('.vehicle-type-badge');
+                if (typeBadge) {
+                    const typeText = typeBadge.textContent.toLowerCase();
+                    return typeText.includes(vehicleType);
+                }
+                return false;
+            }
+        });
+    }
+    currentPage = 1;
+    renderTable();
+});
+
+// Sorting
+document.querySelectorAll(".sortable").forEach(th => {
+    th.addEventListener("click", () => {
+        const key = th.getAttribute("data-key");
+        sortDir = sortKey === key ? -sortDir : 1;
+        sortKey = key;
+        
+        // Get the column index
+        const index = [...th.parentNode.children].indexOf(th);
+        
+        filtered.sort((a, b) => {
+            let aText, bText;
+            
+            // Special handling for vehicle type column (6th column)
+            if (index === 5) {
+                const aTypeCell = a.querySelector('.vehicle-type-cell');
+                const bTypeCell = b.querySelector('.vehicle-type-cell');
+                
+                aText = aTypeCell ? aTypeCell.querySelector('.vehicle-type-badge, .no-type-badge')?.textContent || '' : '';
+                bText = bTypeCell ? bTypeCell.querySelector('.vehicle-type-badge, .no-type-badge')?.textContent || '' : '';
+            }
+            else {
+                aText = a.children[index].innerText;
+                bText = b.children[index].innerText;
+            }
+            
+            // Try to parse as numbers for numeric columns
+            const aNum = parseFloat(aText.replace(/[^\d.-]/g, ''));
+            const bNum = parseFloat(bText.replace(/[^\d.-]/g, ''));
+            
+            if (!isNaN(aNum) && !isNaN(bNum)) {
+                return sortDir * (aNum - bNum);
+            }
+            
+            // For dates (simplified check)
+            if (key.includes('date') || key.includes('time')) {
+                return sortDir * (new Date(aText) - new Date(bText));
+            }
+            
+            // For text
+            return sortDir * aText.localeCompare(bText);
+        });
+        
+        renderTable();
+    });
+});
+
+// Rows per page
+document.getElementById("rowsPerPage").addEventListener("change", () => {
+    currentPage = 1;
+    renderTable();
+});
+
+// Dark mode toggle
+const btn = document.getElementById("themeToggle");
+function setTheme(dark) {
+    document.body.classList.toggle("dark", dark);
+    btn.textContent = dark ? "☀️" : "🌙";
+    localStorage.setItem("hist_dark", dark ? "1" : "0");
+}
+
+btn.addEventListener("click", () => setTheme(!document.body.classList.contains("dark")));
+setTheme(localStorage.getItem("hist_dark") === "1");
+
+// Initial render
+renderTable();
+</script>
+
+</body>
+</html>
